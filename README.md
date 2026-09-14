@@ -7,10 +7,10 @@ Set up a fresh Mac for [The Hook Club](https://github.com/thehookclubdev) develo
 Paste this into Terminal:
 
 ```bash
-curl -fsSL https://dev.thehookclub.nyc/install.sh | bash
+curl -fsSL https://thehookclub.dev/install.sh | bash
 ```
 
-(`dev.thehookclub.nyc` is this repo served by GitHub Pages. The raw URL works too: `https://raw.githubusercontent.com/thehookclubdev/laptop/main/install.sh`.)
+(`thehookclub.dev/install.sh` proxies straight to this repo's `install.sh`; the raw URL `https://raw.githubusercontent.com/thehookclubdev/laptop/main/install.sh` works too. Human-readable instructions: [thehookclub.dev/laptop](https://thehookclub.dev/laptop).)
 
 You'll be asked for your macOS password once. It's safe to run more than once — every step checks before it acts, so re-running on a configured machine is close to a no-op. Open a new terminal afterward (or `source ~/.zshrc`).
 
@@ -69,10 +69,6 @@ After the install finishes:
 Then `cd ~/thc/admin && npm install` just works.
 
 > If you're signed in to more than one 1Password account, add `export OP_ACCOUNT=<shorthand>` to `~/.zshrc` so `op` resolves against the Hook Club account.
-
-## dev.thehookclub.nyc
-
-The apex domain is on Squarespace, which can't proxy a path to GitHub. So this repo is published with GitHub Pages under the custom domain `dev.thehookclub.nyc` (see [`CNAME`](CNAME) and [`index.html`](index.html)); `install.sh` is served straight from the checkout. DNS: a `CNAME` record `dev → thehookclubdev.github.io` at the registrar.
 
 ## Customizing
 

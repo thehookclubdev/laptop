@@ -8,7 +8,7 @@
 # checks before it acts, so on a configured machine it's a near no-op.
 #
 # Run via the install entrypoint, which fetches this repo first:
-#   curl -fsSL https://dev.thehookclub.nyc/install.sh | bash
+#   curl -fsSL https://thehookclub.dev/install.sh | bash
 #
 # Stack: Homebrew + a Brewfile, mise for Node, direnv for per-repo secrets,
 # starship for the prompt. No oh-my-zsh, no nvm, no asdf.
