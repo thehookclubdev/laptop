@@ -1,0 +1,11 @@
+{
+  "name": "@thehookclubdev/laptop",
+  "version": "0.1.0",
+  "description": "Fresh-Mac bootstrap for Hook Club development (Homebrew, CLI tooling, shell, Node), scoped to ~/thc. Idempotent — safe to re-run.",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "setup": "./mac",
+    "envrc": "./envrc"
+  }
+}

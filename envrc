@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+#
+# envrc — give every Hook Club repo a `.envrc` that pulls NPM_GITHUB_TOKEN from
+# 1Password, so `npm install` can reach GitHub Packages (@wedops/*,
+# @thehookclubdev/*) without a token ever landing on disk.
+#
+# Every THC repo has a committed `.npmrc` that reads ${NPM_GITHUB_TOKEN} and a
+# gitignored `.envrc` that is expected to provide it. This walks ~/thc/*, and
+# for each repo whose .npmrc needs the token but has no .envrc yet, writes one
+# holding an op:// *reference* (not the value) and runs `direnv allow`.
+#
+# Idempotent: existing .envrc files are left untouched (yours may hold a
+# plain PAT — that keeps working). Re-run after cloning a new repo.
+#
+#   ~/thc/laptop/envrc              # write + allow
+#   ~/thc/laptop/envrc --dry-run    # just report what it would do
+#
+# Knobs: THC_ROOT (default ~/thc), OP_VAULT (default wedops).
+
+set -euo pipefail
+
+ROOT="${THC_ROOT:-$HOME/thc}"
+VAULT="${OP_VAULT:-wedops}"
+REF="op://$VAULT/GitHub Packages/credential"
+DRY=0
+[ "${1:-}" = "--dry-run" ] && DRY=1
+
+say()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
+note() { printf '    %s\n' "$1"; }
+
+if ! command -v direnv >/dev/null 2>&1 && [ "$DRY" = 0 ]; then
+  echo "direnv not found — run ~/thc/laptop/mac first." >&2
+  exit 1
+fi
+
+written=0
+for dir in "$ROOT"/*/; do
+  dir="${dir%/}"
+  name="${dir##*/}"
+  [ -f "$dir/.npmrc" ] || continue
+  grep -q 'NPM_GITHUB_TOKEN' "$dir/.npmrc" || continue
+  if [ -f "$dir/.envrc" ]; then
+    note "$name: .envrc exists — skipping"
+    continue
+  fi
+  if [ "$DRY" = 1 ]; then
+    say "$name: would write .envrc ($REF)"
+    continue
+  fi
+  say "$name: writing .envrc"
+  cat > "$dir/.envrc" <<ENVRC
+# Secrets from 1Password (references, not values). Written by ~/thc/laptop/envrc.
+# If you have more than one op account, put \`export OP_ACCOUNT=<shorthand>\`
+# in ~/.zshrc so \`op read\` knows which one owns the "$VAULT" vault.
+if command -v op >/dev/null 2>&1; then
+  export NPM_GITHUB_TOKEN="\$(op read --no-newline '$REF' 2>/dev/null)"
+fi
+
+if [ -z "\${NPM_GITHUB_TOKEN:-}" ]; then
+  echo "direnv: NPM_GITHUB_TOKEN is unset — run 'op signin' (or unlock 1Password), then 'direnv reload'." >&2
+fi
+ENVRC
+  direnv allow "$dir"
+  written=$((written + 1))
+done
+
+if [ "$DRY" = 1 ]; then
+  say "Dry run — nothing written."
+else
+  say "Done. Wrote $written .envrc file(s) under $ROOT."
+fi

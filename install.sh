@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# install.sh — one-command setup for a fresh Mac, scoped to The Hook Club.
+#
+# Installs Homebrew (which brings git via the Xcode Command Line Tools), clones
+# this repo into ~/thc/laptop, and hands off to ./mac. Idempotent — safe to re-run.
+#
+# Run it with:
+#
+#   curl -fsSL https://raw.githubusercontent.com/thehookclubdev/laptop/main/install.sh | bash
+
+set -euo pipefail
+
+REPO_URL="https://github.com/thehookclubdev/laptop.git"
+DEST="$HOME/thc/laptop"
+BREW_PREFIX="/opt/homebrew"   # Apple Silicon
+
+fancy_echo() {
+  local fmt="$1"; shift
+  # shellcheck disable=SC2059
+  printf "\n\033[1;34m==>\033[0m \033[1m$fmt\033[0m\n" "$@"
+}
+
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "This bootstrap targets macOS." >&2
+  exit 1
+fi
+
+# 1. Homebrew — its installer also installs the Command Line Tools (git, etc.).
+if ! command -v brew >/dev/null 2>&1; then
+  fancy_echo "Installing Homebrew (this also installs git via the Xcode CLT)…"
+  /bin/bash -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Put brew on PATH for the rest of this script, and for future login shells.
+if [ -x "$BREW_PREFIX/bin/brew" ]; then
+  eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+  if ! grep -Fq 'brew shellenv' "$HOME/.zprofile" 2>/dev/null; then
+    printf '\neval "$(%s/bin/brew shellenv zsh)"\n' "$BREW_PREFIX" >> "$HOME/.zprofile"
+  fi
+fi
+
+# 2. Make sure git is actually available (the CLT usually provides it; if not,
+#    install it via brew so the clone below can't fail).
+if ! command -v git >/dev/null 2>&1; then
+  fancy_echo "Installing git…"
+  brew install git
+fi
+
+# 3. Clone (or update) the repo. Lives inside ~/thc next to the app repos.
+mkdir -p "$(dirname "$DEST")"
+if [ -d "$DEST/.git" ]; then
+  fancy_echo "Updating existing checkout at %s…" "$DEST"
+  git -C "$DEST" pull --ff-only
+else
+  fancy_echo "Cloning %s into %s…" "$REPO_URL" "$DEST"
+  git clone "$REPO_URL" "$DEST"
+fi
+
+# 4. Hand off to the full provisioner.
+fancy_echo "Running ./mac…"
+exec "$DEST/mac"
