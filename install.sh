@@ -7,7 +7,9 @@
 #
 # Run it with:
 #
-#   curl -fsSL https://raw.githubusercontent.com/thehookclubdev/laptop/main/install.sh | bash
+#   curl -fsSL https://dev.thehookclub.nyc/install.sh | bash
+#
+# (raw fallback: https://raw.githubusercontent.com/thehookclubdev/laptop/main/install.sh)
 
 set -euo pipefail
 

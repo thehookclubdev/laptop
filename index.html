@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laptop — The Hook Club</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: #0f0f12; color: #e8e8ec; }
+    main { max-width: 42rem; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+    h1 { font-size: 2.25rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 2.5rem 0 .75rem; }
+    .lead { font-size: 1.15rem; color: #b8b8c4; margin-top: 0; }
+    .cmd { position: relative; background: #1b1b22; border: 1px solid #2b2b36; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; }
+    .cmd pre { margin: 0; overflow-x: auto; }
+    .cmd code { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #fe64ff; }
+    .copy { position: absolute; top: .6rem; right: .6rem; font-size: .8rem; padding: .25rem .6rem; border-radius: 6px; border: 1px solid #3a3a48; background: #24242e; color: #e8e8ec; cursor: pointer; }
+    .copy.copied { border-color: #ac32ff; color: #ac32ff; }
+    .note { color: #9a9aa8; font-size: .95rem; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    a { color: #ac32ff; }
+    li { margin: .25rem 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Laptop</h1>
+    <p class="lead">Set up a fresh Mac for Hook Club development in one command.</p>
+
+    <p>Paste this into Terminal:</p>
+    <div class="cmd">
+      <pre><code id="install-cmd">curl -fsSL https://dev.thehookclub.nyc/install.sh | bash</code></pre>
+      <button class="copy" type="button" data-target="install-cmd" aria-label="Copy command">Copy</button>
+    </div>
+    <p class="note">You'll be asked for your macOS password once. It's safe to re-run — every step checks before it acts. Clones itself to <code>~/thc/laptop</code>.</p>
+
+    <h2>What it installs</h2>
+    <ul>
+      <li><strong>mise</strong> — provisions Node (latest LTS)</li>
+      <li><strong>direnv</strong> — loads each repo's <code>.envrc</code> (GitHub Packages token from 1Password)</li>
+      <li><strong>gh</strong> — GitHub CLI</li>
+      <li><strong>starship</strong> — shell prompt</li>
+      <li><strong>redis</strong>, <strong>libpq</strong> — local Redis for the admin app / Postgres client tools</li>
+      <li><strong>netlify-cli</strong> — deploys the Netlify-hosted apps</li>
+      <li><strong>orbstack</strong> — Docker engine</li>
+      <li><strong>ffmpeg</strong>, <strong>yt-dlp</strong> — song reference downloads</li>
+      <li><strong>1Password</strong> + <strong>op</strong> — secrets &amp; SSH</li>
+      <li><strong>Claude Code</strong> — Anthropic's CLI</li>
+      <li><strong>zed</strong>, <strong>linear</strong>, <strong>tableplus</strong>, <strong>ghostty</strong>, <strong>rectangle</strong></li>
+    </ul>
+    <p>It also wires mise, starship, and direnv into <code>~/.zshrc</code>, provisions Node, starts Redis, and points <code>~/.ssh/config</code> at the 1Password SSH agent.</p>
+
+    <h2>After it finishes</h2>
+    <p>Secrets come from the Hook Club 1Password — nothing is pasted or stored on disk. You need access to the shared <code>developer</code> vault (an admin adds you). In the 1Password app, enable <strong>Settings → Developer</strong> → <em>Integrate with 1Password CLI</em>, <em>Use the SSH agent</em>, and Touch ID. Then sign in, pull the repos into <code>~/thc</code>, and give each one its <code>.envrc</code>:</p>
+    <div class="cmd">
+      <pre><code id="workspace-cmd">op signin
+op document get workspace --vault developer | bash
+~/thc/laptop/envrc</code></pre>
+      <button class="copy" type="button" data-target="workspace-cmd" aria-label="Copy command">Copy</button>
+    </div>
+
+    <p class="repo note">Source: <a href="https://github.com/thehookclubdev/laptop">github.com/thehookclubdev/laptop</a></p>
+  </main>
+  <script>
+    document.querySelectorAll('.copy').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var text = document.getElementById(btn.dataset.target).textContent;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied'; btn.classList.add('copied');
+          setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

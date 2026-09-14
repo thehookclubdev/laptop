@@ -15,13 +15,14 @@
 #   ~/thc/laptop/envrc              # write + allow
 #   ~/thc/laptop/envrc --dry-run    # just report what it would do
 #
-# Knobs: THC_ROOT (default ~/thc), OP_VAULT (default wedops).
+# Knobs: THC_ROOT (default ~/thc), OP_VAULT (default developer — the shared vault
+# in the Hook Club 1Password account).
 
 set -euo pipefail
 
 ROOT="${THC_ROOT:-$HOME/thc}"
-VAULT="${OP_VAULT:-wedops}"
-REF="op://$VAULT/GitHub Packages/credential"
+VAULT="${OP_VAULT:-developer}"
+REF="op://$VAULT/GitHub NPM Token/password"
 DRY=0
 [ "${1:-}" = "--dry-run" ] && DRY=1
 
